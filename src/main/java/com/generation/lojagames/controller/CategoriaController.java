@@ -23,53 +23,55 @@ import com.generation.lojagames.repository.CategoriaRepository;
 
 import jakarta.validation.Valid;
 
-@RestController 
+@RestController
 @RequestMapping("/categorias")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
-
 public class CategoriaController {
-
+	// Conectando com a Repository
 	@Autowired
 	private CategoriaRepository categoriaRepository;
 	
-	@GetMapping
-	public ResponseEntity<List<Categoria>> getAll(){ 
+	// Métodos CRUD básicos
+	@PostMapping("/cadastrar")
+	public ResponseEntity<Categoria> post(@Valid @RequestBody Categoria categoria){
+		return ResponseEntity.status(HttpStatus.CREATED).body(categoriaRepository.save(categoria));
+	}
+	
+	@GetMapping("/all")
+	public ResponseEntity<List<Categoria>> getAll(){
 		return ResponseEntity.ok(categoriaRepository.findAll());
-}
-	@GetMapping("/{id}") 
-	public ResponseEntity<Categoria> getById(@PathVariable Long id){ 
-          
-		return categoriaRepository.findById(id) 
-	
-		      .map(resposta -> ResponseEntity.ok(resposta)) 
-		      .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-}
-	@GetMapping("/genero/{genero}") 
-	public ResponseEntity<List<Categoria>> getByGenero(@PathVariable String genero){
-		return ResponseEntity.ok(categoriaRepository.findAllByGeneroContainingIgnoreCase(genero));
-
 	}
 	
-	 @PostMapping
-		public ResponseEntity<Categoria> post(@Valid @RequestBody Categoria categoria){
-		 return  ResponseEntity.status(HttpStatus.OK).body(categoriaRepository.save(categoria));
+	@PutMapping("/atualizar")
+	public ResponseEntity<Categoria> put(@Valid @RequestBody Categoria categoria){
+		return categoriaRepository.findById(categoria.getId())
+				.map(resposta -> ResponseEntity.status(HttpStatus.OK).body(categoriaRepository.save(categoria)))
+				.orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
 	}
-	   @PutMapping 
-	   public ResponseEntity<Categoria> put(@Valid @RequestBody Categoria categoria){ 
-		   return categoriaRepository.findById(categoria.getId())
-					.map(resposta -> ResponseEntity.ok().body(categoriaRepository.save(categoria)))
-					.orElse(ResponseEntity.notFound().build());
-	   
-	}
-	   @ResponseStatus(HttpStatus.NO_CONTENT) 
-		@DeleteMapping("/{id}") 
-		public void delete(@PathVariable Long id) { 
-			
-			Optional<Categoria> categoria = categoriaRepository.findById(id);
-			
-			if(categoria.isEmpty())
-				 throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+	
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@DeleteMapping("/{id}")
+	public void delete(@PathVariable Long id) {
+		Optional<Categoria> optional = categoriaRepository.findById(id);
+		
+		if (optional.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
+		else {
 			categoriaRepository.deleteById(id);
-	   
-	   }
+		}
 	}
+	
+	// Métodos Adicionais
+		@GetMapping("/{id}")
+		public ResponseEntity<Categoria> getById(@PathVariable Long id){
+			return categoriaRepository.findById(id)
+					.map(resposta -> ResponseEntity.ok(resposta))
+					.orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+		}
+		
+		@GetMapping("/nome/{nome}")
+		public ResponseEntity<List<Categoria>> getByNome(@PathVariable String nome){
+			return ResponseEntity.ok(categoriaRepository.findAllByNomeContainingIgnoreCase(nome));
+		}
+}

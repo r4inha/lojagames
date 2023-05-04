@@ -18,6 +18,7 @@ import jakarta.validation.constraints.Size;
 @Entity
 @Table(name = "tb_categorias")
 public class Categoria {
+	
 	// Atributos
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,8 +49,7 @@ public class Categoria {
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-	
-	// Get e Set do produto
+
 	public List<Produto> getProduto() {
 		return produto;
 	}
@@ -57,4 +57,6 @@ public class Categoria {
 	public void setProduto(List<Produto> produto) {
 		this.produto = produto;
 	}
+	
+	
 }
